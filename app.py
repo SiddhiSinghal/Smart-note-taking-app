@@ -22,11 +22,11 @@ def delete_note(index):
     notes.pop(index)
     save_notes(notes)
 
-# Add a new note
 def add_note(title, content):
     notes = load_notes()
-    notes.append({"title": title, "content": content})
+    notes.append({"title": title, "content": content})  # ✅ Correct
     save_notes(notes)
+
 
 # UI
 st.set_page_config(page_title="Smart Note-Taking App", layout="centered")
