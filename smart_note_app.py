@@ -132,21 +132,18 @@ class SmartNoteApp:
         
         self.note_manager = NoteManager()
         self.current_note = None
-        self.displayed_notes = []  # List to keep track of currently displayed notes
+        self.displayed_notes = []  
         
         self.create_widgets()
         self.refresh_notes_list()
 
     def create_widgets(self):
-        # Main frame
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        # Left panel - Note list and categories
         left_panel = ttk.Frame(main_frame, width=300)
         left_panel.pack(side=tk.LEFT, fill=tk.BOTH, padx=(0, 10))
         
-        # Search frame
         search_frame = ttk.Frame(left_panel)
         search_frame.pack(fill=tk.X, pady=(0, 10))
         
@@ -159,7 +156,6 @@ class SmartNoteApp:
         search_button = ttk.Button(search_frame, text="Search", command=self.on_search_button)
         search_button.pack(side=tk.RIGHT, padx=(5, 0))
         
-        # Category frame
         category_frame = ttk.LabelFrame(left_panel, text="Categories")
         category_frame.pack(fill=tk.X, pady=(0, 10))
         
@@ -172,7 +168,6 @@ class SmartNoteApp:
                                 variable=self.category_var, command=self.on_category_select)
             rb.pack(anchor=tk.W, padx=5, pady=2)
         
-        # Notes list
         notes_frame = ttk.LabelFrame(left_panel, text="Notes")
         notes_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -180,7 +175,6 @@ class SmartNoteApp:
         self.notes_listbox.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         self.notes_listbox.bind("<<ListboxSelect>>", self.on_note_select)
         
-        # Buttons frame
         buttons_frame = ttk.Frame(left_panel)
         buttons_frame.pack(fill=tk.X, pady=(10, 0))
         
@@ -190,11 +184,9 @@ class SmartNoteApp:
         delete_button = ttk.Button(buttons_frame, text="Delete", command=self.delete_note)
         delete_button.pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(5, 0))
         
-        # Right panel - Note editor
         right_panel = ttk.Frame(main_frame)
         right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         
-        # Title and category
         editor_top = ttk.Frame(right_panel)
         editor_top.pack(fill=tk.X, pady=(0, 10))
         
@@ -211,8 +203,7 @@ class SmartNoteApp:
         
         editor_top.columnconfigure(1, weight=2)
         editor_top.columnconfigure(3, weight=1)
-        
-        # Tags
+
         tags_frame = ttk.Frame(right_panel)
         tags_frame.pack(fill=tk.X, pady=(0, 10))
         
@@ -220,24 +211,20 @@ class SmartNoteApp:
         self.tags_var = tk.StringVar()
         tags_entry = ttk.Entry(tags_frame, textvariable=self.tags_var)
         tags_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        
-        # Content
+
         ttk.Label(right_panel, text="Content:").pack(anchor=tk.W)
         self.content_text = scrolledtext.ScrolledText(right_panel, wrap=tk.WORD)
         self.content_text.pack(fill=tk.BOTH, expand=True, pady=(5, 10))
         
-        # Save button
         save_button = ttk.Button(right_panel, text="Save", command=self.save_note)
         save_button.pack(fill=tk.X)
 
     def refresh_notes_list(self):
         selected_category = self.category_var.get()
         search_query = self.search_var.get()
-        
-        # Clear the listbox
+
         self.notes_listbox.delete(0, tk.END)
         
-        # Filter notes based on category and search query
         if search_query:
             notes = self.note_manager.search_notes(search_query)
         elif selected_category == "All":
@@ -245,13 +232,10 @@ class SmartNoteApp:
         else:
             notes = self.note_manager.get_notes_by_category(selected_category)
         
-        # Sort notes by updated_at (newest first)
         notes.sort(key=lambda x: x.updated_at, reverse=True)
         
-        # Store the notes for reference
         self.displayed_notes = notes
-        
-        # Add notes to the listbox
+
         for note in notes:
             self.notes_listbox.insert(tk.END, note.title)
     
@@ -269,7 +253,6 @@ class SmartNoteApp:
         selection = self.notes_listbox.curselection()
         if selection:
             index = selection[0]
-            # Get note from the displayed_notes list using the index
             if 0 <= index < len(self.displayed_notes):
                 note = self.displayed_notes[index]
                 self.current_note = note
@@ -292,16 +275,13 @@ class SmartNoteApp:
         if not category:
             category = "General"
         
-        # Parse tags
         tags = [tag.strip() for tag in tags_text.split(",") if tag.strip()]
         
         if self.current_note:
-            # Update existing note
             self.note_manager.update_note(
                 self.current_note.id, title, content, tags, category
             )
         else:
-            # Create new note
             note = Note(title, content, tags, category)
             self.note_manager.add_note(note)
             self.current_note = note
@@ -327,7 +307,6 @@ class SmartNoteApp:
         self.refresh_notes_list()
     
     def on_search(self, *args):
-        # Delay search to avoid frequent updates while typing
         self.root.after(300, self.refresh_notes_list)
     
     def on_search_button(self):
