@@ -24,8 +24,9 @@ def delete_note(index):
 
 def add_note(title, content):
     notes = load_notes()
-    notes.append({"title": title, "content": content})  # ✅ Correct
+    notes.append({"title": title, "content": content})  # ✅ Append as dict
     save_notes(notes)
+
 
 
 # UI
@@ -49,13 +50,14 @@ with st.form("note_form"):
 # Display Notes
 st.subheader("Your Notes")
 notes = load_notes()
-if notes:
-    for i, note in enumerate(notes):
+for i, note in enumerate(notes):
+    if isinstance(note, dict):
         st.markdown(f"### {note['title']}")
         st.write(note['content'])
-        if st.button(f"🗑️ Delete", key=f"delete_{i}"):
+        if st.button("🗑️ Delete", key=f"del_{i}"):
             delete_note(i)
             st.experimental_rerun()
-else:
-    st.info("No notes found. Add one above!")
+    else:
+        st.warning("Skipping invalid note format.")
+
 
