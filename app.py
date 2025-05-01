@@ -14,7 +14,7 @@ def load_notes():
 # Save notes to file
 def save_notes(notes):
     with open(NOTES_FILE, "w") as f:
-        json.dump(notes, f)
+        json.dump(notes, f, indent=2)
 
 # Delete a note by index
 def delete_note(index):
@@ -22,18 +22,17 @@ def delete_note(index):
     notes.pop(index)
     save_notes(notes)
 
+# Add a new note
 def add_note(title, content):
     notes = load_notes()
-    notes.append({"title": title, "content": content})  # ✅ Append as dict
+    notes.append({"title": title, "content": content})
     save_notes(notes)
 
-
-
-# UI
+# UI setup
 st.set_page_config(page_title="Smart Note-Taking App", layout="centered")
 
 st.title("📝 Smart Note-Taking App")
-st.markdown("Create and manage your notes easily!")
+st.markdown("Create, search and manage your notes easily!")
 
 # Add Note Section
 with st.form("note_form"):
@@ -47,17 +46,21 @@ with st.form("note_form"):
         else:
             st.warning("Please fill in both title and content.")
 
+# Search Notes
+search_query = st.text_input("🔍 Search notes", "")
+
 # Display Notes
-st.subheader("Your Notes")
+st.subheader("📚 Your Notes")
 notes = load_notes()
-for i, note in enumerate(notes):
-    if isinstance(note, dict):
+filtered_notes = [note for note in notes if search_query.lower() in note["title"].lower() or search_query.lower() in note["content"].lower()]
+
+if filtered_notes:
+    for i, note in enumerate(filtered_notes):
         st.markdown(f"### {note['title']}")
         st.write(note['content'])
         if st.button("🗑️ Delete", key=f"del_{i}"):
-            delete_note(i)
-            st.experimental_rerun()
-    else:
-        st.warning("Skipping invalid note format.")
-
-
+            # Get original index from notes list
+            orig_index = notes.index(note)
+            delete_note(orig_index)
+else:
+    st.info("No matching notes found." if search_query else "No notes added yet.")
